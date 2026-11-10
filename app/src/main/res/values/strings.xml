@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shishyams AI Caller</string>
+    <string name="subtitle">Companion app for the AI Calling Agent</string>
+    <string name="channel_name">AI Calling link</string>
+    <string name="channel_desc">Keeps this phone connected to your dashboard.</string>
+
+    <string name="pair_title">Pair this phone</string>
+    <string name="pair_intro">On the dashboard open Digital Marketing → AI Calling Agent → Devices and press “Generate pairing code”. Then enter the details below.</string>
+    <string name="hint_server">Server address (https://…)</string>
+    <string name="hint_code">Pairing code</string>
+    <string name="hint_name">Name of this phone</string>
+    <string name="btn_pair">Pair</string>
+    <string name="err_server">Enter your server address, starting with https://</string>
+    <string name="err_code">Enter the pairing code shown on the dashboard.</string>
+    <string name="err_network">Could not reach the server. Check the address and your internet connection.</string>
+
+    <string name="status_title">Connection</string>
+    <string name="state_idle">Not running</string>
+    <string name="state_connecting">Connecting…</string>
+    <string name="state_ws">Connected · secure WebSocket</string>
+    <string name="state_https">Connected · secure HTTPS</string>
+    <string name="state_offline">Offline — retrying</string>
+    <string name="state_unpaired">Not paired</string>
+    <string name="last_contact">Last contact: %1$s</string>
+    <string name="no_contact">No contact yet</string>
+    <string name="msg_removed">This phone was removed from the dashboard. Pair it again to continue.</string>
+
+    <string name="btn_reconnect">Reconnect</string>
+    <string name="btn_battery_allow">Keep running in background</string>
+    <string name="btn_battery_ok">Background: allowed ✓</string>
+    <string name="btn_calling_allow">Allow calling</string>
+    <string name="btn_calling_ok">Calling: allowed ✓</string>
+    <string name="calling_missing">Still needed: %1$s</string>
+    <string name="btn_voice_start">Start AI voice mode</string>
+    <string name="btn_voice_on">AI voice mode: on ✓ (tap to stop)</string>
+    <string name="voice_notif_title">AI voice mode is on</string>
+    <string name="voice_notif_text">The phone can listen and speak during AI calls.</string>
+    <string name="voice_hint">Keep this phone in a quiet place with the speaker facing up while a campaign runs.</string>
+    <string name="splash_name">Shishyams</string>
+    <string name="powered_by">Powered by - Gurushishya Multiskills pvt.ltd</string>
+    <string name="version_fmt">Version %1$s</string>
+    <string name="headline_1">Your Calls,</string>
+    <string name="headline_2">Smarter.</string>
+    <string name="headline_sub">Pair this phone and let your AI assistant make the calls.</string>
+    <string name="loading_title">Getting everything ready for you…</string>
+    <string name="loading_sub">Just a moment…</string>
+    <string name="btn_unpair">Unpair</string>
+    <string name="unpair_title">Unpair this phone?</string>
+    <string name="unpair_message">The phone will disconnect and the dashboard will no longer be able to reach it.</string>
+    <string name="activity_title">Activity</string>
+    <string name="fb_title">How did the call go?</string>
+    <string name="fb_interested">Interested</string>
+    <string name="fb_not_interested">Not Interested</string>
+    <string name="fb_call_later">Call Later</string>
+    <string name="fb_dnd">DND</string>
+    <string name="fb_skip">Skip for now</string>
+    <string name="fb_unknown_number">Unknown number</string>
+    <string name="fb_done_interested">Saved: Interested</string>
+    <string name="fb_done_not_interested">Saved: Not Interested</string>
+    <string name="fb_done_call_later">Saved: Call Later</string>
+    <string name="fb_done_dnd">Saved: DND — this number will not be called again</string>
+    <string name="fb_notif_title">Call ended</string>
+    <string name="fb_notif_text">Tap to mark: Interested, Not Interested, Call Later or DND</string>
+    <string name="fb_channel_name">Call feedback</string>
+    <string name="fb_channel_desc">Asks how a call went as soon as it ends</string>
+    <plurals name="fb_more_waiting">
+        <item quantity="one">%d more call waiting</item>
+        <item quantity="other">%d more calls waiting</item>
+    </plurals>
+    <plurals name="fb_banner">
+        <item quantity="one">%d call waiting for your feedback — tap to answer</item>
+        <item quantity="other">%d calls waiting for your feedback — tap to answer</item>
+    </plurals>
+    <string name="stats_title">Today\'s calls</string>
+    <string name="stats_dialed">Dialed</string>
+    <string name="stats_received">Received</string>
+    <string name="stats_not_answered">Not answered</string>
+    <string name="stats_hint">Allow the Calling permissions above to see today\'s call counts.</string>
+    <string name="log_empty">Nothing yet.</string>
+
+    <string name="notif_connecting">Connecting to the dashboard…</string>
+    <string name="notif_online_ws">Connected · WebSocket</string>
+    <string name="notif_online_https">Connected · HTTPS</string>
+    <string name="notif_offline">Offline — retrying</string>
+
+    <!-- Campaigns screen (referenced by activity_campaigns.xml, activity_campaign_edit.xml, CampaignsActivity, CampaignEditActivity) -->
+    <string name="camp_title">Campaigns</string>
+    <string name="camp_new">New campaign</string>
+    <string name="camp_edit_title">Edit campaign</string>
+    <string name="camp_empty">No campaigns yet. Tap “New campaign” to create one.</string>
+    <string name="camp_start">Start</string>
+    <string name="camp_pause">Pause</string>
+    <string name="camp_resume">Resume</string>
+    <string name="camp_skip">Skip</string>
+    <string name="camp_stop">Stop</string>
+    <string name="camp_edit">Edit</string>
+    <string name="camp_copy">Duplicate</string>
+    <string name="camp_delete">Delete</string>
+    <string name="camp_confirm_start">I have permission to call these numbers (they agreed to be contacted).</string>
+    <string name="camp_save">Save campaign</string>
+    <string name="camp_saved">Campaign saved.</string>
+    <string name="camp_readonly">This campaign is running or finished and can no longer be edited. Duplicate it to make changes.</string>
+    <string name="camp_language">Language</string>
+    <string name="camp_tone">Tone</string>
+    <string name="camp_audience">Who to call</string>
+    <string name="camp_all_contacts">All contacts</string>
+    <string name="camp_choose_lists">Choose contact lists</string>
+    <string name="camp_hint_name">Campaign name</string>
+    <string name="camp_hint_persona">AI persona (who is speaking, e.g. “Priya from Shishyams Institute”)</string>
+    <string name="camp_hint_goal">Goal of the call</string>
+    <string name="camp_hint_opening">Opening line</string>
+    <string name="camp_hint_pitch">Main message / pitch</string>
+    <string name="camp_hint_notint">If the person is not interested</string>
+    <string name="camp_hint_callback">If the person asks for a call back</string>
+    <string name="camp_hint_closing">Closing line</string>
+    <string name="camp_hint_rules">Extra rules for the AI</string>
+    <string name="status_offline_hint">Could not reach the server. Check the internet connection and try again.</string>
+</resources>

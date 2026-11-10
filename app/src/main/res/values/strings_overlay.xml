@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="overlay_on_call">On a call</string>
+    <string name="overlay_play">Play</string>
+    <string name="overlay_playing">Playing…</string>
+</resources>
