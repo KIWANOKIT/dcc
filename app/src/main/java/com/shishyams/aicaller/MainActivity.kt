@@ -53,7 +53,11 @@ class MainActivity : AppCompatActivity() {
             CallManager.get(this).ensureListening()
             render()
             if (prefs.isPaired) ConnectionService.reconnect(this)   // tell the dashboard right away
+            if (setupAfterPair) { setupAfterPair = false; askBackgroundAllowed() }   // next step of the post-pairing setup
         }
+
+    /** True while the "allow calling, then allow background" prompts that follow a successful pairing are running. */
+    private var setupAfterPair = false
 
     private val micPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -180,6 +184,7 @@ class MainActivity : AppCompatActivity() {
                 ConnectionState.log("Paired with ${res.optString("institute_name")}")
                 b.inputCode.setText("")
                 ConnectionService.start(this@MainActivity)
+                startPostPairSetup()
             } catch (e: ApiException) {
                 showPairError(e.message ?: getString(R.string.err_network))
             } catch (e: IOException) {
@@ -188,6 +193,27 @@ class MainActivity : AppCompatActivity() {
                 setBusy(false)
                 render()
             }
+        }
+    }
+
+    /** After a successful pairing: ask to allow calling, then ask to allow running in the background. */
+    private fun startPostPairSetup() {
+        val todo = DialerPermissions.all().filter { !DialerPermissions.has(this, it) }
+        if (todo.isEmpty()) {
+            askBackgroundAllowed()
+        } else {
+            setupAfterPair = true
+            callingPermissions.launch(todo.toTypedArray())   // the result handler then asks for background
+        }
+    }
+
+    /** Shows Android's "allow this app to run in the background?" prompt (nothing happens if it is already allowed). */
+    private fun askBackgroundAllowed() {
+        if (isIgnoringBatteryOptimizations()) return
+        try {
+            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
+        } catch (e: Exception) {
+            try { startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } catch (_: Exception) { /* no such screen on this phone */ }
         }
     }
 

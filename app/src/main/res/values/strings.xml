@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Shishyams AI Caller</string>
+    <string name="app_name">DCC</string>
     <string name="subtitle">Companion app for the AI Calling Agent</string>
     <string name="channel_name">AI Calling link</string>
     <string name="channel_desc">Keeps this phone connected to your dashboard.</string>
