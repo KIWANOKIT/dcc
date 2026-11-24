@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DCC</string>
+    <string name="app_name">Shishyams AI Caller</string>
     <string name="subtitle">Companion app for the AI Calling Agent</string>
     <string name="channel_name">AI Calling link</string>
     <string name="channel_desc">Keeps this phone connected to your dashboard.</string>
@@ -49,40 +49,28 @@
     <string name="unpair_title">Unpair this phone?</string>
     <string name="unpair_message">The phone will disconnect and the dashboard will no longer be able to reach it.</string>
     <string name="activity_title">Activity</string>
-    <string name="fb_title">How did the call go?</string>
-    <string name="fb_interested">Interested</string>
-    <string name="fb_not_interested">Not Interested</string>
-    <string name="fb_call_later">Call Later</string>
-    <string name="fb_dnd">DND</string>
-    <string name="fb_skip">Skip for now</string>
-    <string name="fb_unknown_number">Unknown number</string>
-    <string name="fb_done_interested">Saved: Interested</string>
-    <string name="fb_done_not_interested">Saved: Not Interested</string>
-    <string name="fb_done_call_later">Saved: Call Later</string>
-    <string name="fb_done_dnd">Saved: DND — this number will not be called again</string>
-    <string name="fb_notif_title">Call ended</string>
-    <string name="fb_notif_text">Tap to mark: Interested, Not Interested, Call Later or DND</string>
-    <string name="fb_channel_name">Call feedback</string>
-    <string name="fb_channel_desc">Asks how a call went as soon as it ends</string>
-    <plurals name="fb_more_waiting">
-        <item quantity="one">%d more call waiting</item>
-        <item quantity="other">%d more calls waiting</item>
-    </plurals>
-    <plurals name="fb_banner">
-        <item quantity="one">%d call waiting for your feedback — tap to answer</item>
-        <item quantity="other">%d calls waiting for your feedback — tap to answer</item>
-    </plurals>
-    <string name="stats_title">Today\'s calls</string>
-    <string name="stats_dialed">Dialed</string>
-    <string name="stats_received">Received</string>
-    <string name="stats_not_answered">Not answered</string>
-    <string name="stats_hint">Allow the Calling permissions above to see today\'s call counts.</string>
     <string name="log_empty">Nothing yet.</string>
 
     <string name="notif_connecting">Connecting to the dashboard…</string>
     <string name="notif_online_ws">Connected · WebSocket</string>
     <string name="notif_online_https">Connected · HTTPS</string>
     <string name="notif_offline">Offline — retrying</string>
+    <string name="myvoice_title">My recorded voice</string>
+    <string name="myvoice_hint">Record your own voice here. When the person answers a campaign call and says hello, this recording plays automatically, and a small Play button floats on the call screen so you can also play it yourself.</string>
+    <string name="myvoice_none">No recording yet.</string>
+    <string name="myvoice_saved">Recording saved — it will play when a call is answered.</string>
+    <string name="myvoice_recording">Recording… tap Stop when done.</string>
+    <string name="myvoice_playing">Playing…</string>
+    <string name="myvoice_failed">That recording could not be saved. Please try again.</string>
+    <string name="myvoice_record">Record</string>
+    <string name="myvoice_stop">Stop</string>
+    <string name="myvoice_play">Play</string>
+    <string name="myvoice_delete">Delete</string>
+    <string name="myvoice_auto">Use it on calls: play automatically and show a Play button</string>
+    <string name="overlay_on_call">On call</string>
+    <string name="overlay_play">▶  Play my voice</string>
+    <string name="overlay_playing">Playing…</string>
+    <string name="myvoice_allow_popup">Allow the Play button during calls (display over other apps)</string>
 
     <!-- Campaigns screen (referenced by activity_campaigns.xml, activity_campaign_edit.xml, CampaignsActivity, CampaignEditActivity) -->
     <string name="camp_title">Campaigns</string>

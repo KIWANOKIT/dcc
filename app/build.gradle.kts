@@ -11,8 +11,8 @@ android {
         applicationId = "com.shishyams.aicaller"
         minSdk = 26
         targetSdk = 34
-        versionCode = 8
-        versionName = "1.3.1"
+        versionCode = 5
+        versionName = "1.2.2"
     }
 
     buildTypes {

@@ -15,15 +15,6 @@
         <item name="materialCardViewStyle">@style/Widget.AICaller.Card</item>
     </style>
 
-    <!-- The one-tap call feedback card floats over whatever is behind it. -->
-    <style name="Theme.AICaller.Feedback" parent="Theme.AICaller">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-    </style>
-
     <style name="Widget.AICaller.Card" parent="Widget.Material3.CardView.Outlined">
         <item name="cardBackgroundColor">@color/white</item>
         <item name="cardCornerRadius">16dp</item>

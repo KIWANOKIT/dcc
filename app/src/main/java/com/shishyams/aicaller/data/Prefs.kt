@@ -44,20 +44,15 @@ class Prefs private constructor(context: Context) {
         get() = sp.getInt(K_HOLD, 20)
         set(value) = sp.edit { putInt(K_HOLD, value) }
 
+    /** Play the recording made in this app (see MyVoice) automatically when a call is answered. */
+    var autoPlayMyVoice: Boolean
+        get() = sp.getBoolean(K_MYVOICE, true)
+        set(value) = sp.edit { putBoolean(K_MYVOICE, value) }
+
     /** Call results (JSON array) waiting to be accepted by the server; see CallManager. */
     var pendingEvents: String
         get() = sp.getString(K_PENDING, "[]") ?: "[]"
         set(value) = sp.edit { putString(K_PENDING, value) }
-
-    /** Answered calls waiting for the caller's one-tap feedback (JSON array); see FeedbackPrompt. */
-    var pendingFeedback: String
-        get() = sp.getString(K_FEEDBACK, "[]") ?: "[]"
-        set(value) = sp.edit { putString(K_FEEDBACK, value) }
-
-    /** My-voice sample: play it automatically when a call is answered. */
-    var autoPlayMyVoice: Boolean
-        get() = sp.getBoolean(K_AUTOPLAY_MY_VOICE, false)
-        set(value) = sp.edit { putBoolean(K_AUTOPLAY_MY_VOICE, value) }
 
     /** Random id generated once per install (instead of a hardware identifier). */
     val deviceUid: String
@@ -96,7 +91,6 @@ class Prefs private constructor(context: Context) {
             remove(K_TOKEN)
             remove(K_INSTITUTE)
             remove(K_WS)
-            remove(K_FEEDBACK)
         }
     }
 
@@ -111,8 +105,7 @@ class Prefs private constructor(context: Context) {
         private const val K_HOLD = "poll_hold_sec"
         private const val K_UID = "device_uid"
         private const val K_PENDING = "pending_call_events"
-        private const val K_FEEDBACK = "pending_call_feedback"
-        private const val K_AUTOPLAY_MY_VOICE = "auto_play_my_voice"
+        private const val K_MYVOICE = "auto_play_my_voice"
 
         @Volatile
         private var instance: Prefs? = null

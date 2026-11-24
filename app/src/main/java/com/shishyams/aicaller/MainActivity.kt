@@ -3,14 +3,12 @@ package com.shishyams.aicaller
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.ContentObserver
+import android.media.MediaPlayer
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.PowerManager
-import android.provider.CallLog
 import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.View
@@ -22,11 +20,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.shishyams.aicaller.call.CallManager
+import com.shishyams.aicaller.call.CallOverlay
 import com.shishyams.aicaller.call.DialerPermissions
-import com.shishyams.aicaller.call.FeedbackPrompt
 import com.shishyams.aicaller.call.VoiceModeService
-import com.shishyams.aicaller.data.CallStats
 import com.shishyams.aicaller.data.DeviceInfo
+import com.shishyams.aicaller.data.MyVoice
 import com.shishyams.aicaller.data.Prefs
 import com.shishyams.aicaller.databinding.ActivityMainBinding
 import com.shishyams.aicaller.net.ApiClient
@@ -53,21 +51,20 @@ class MainActivity : AppCompatActivity() {
             CallManager.get(this).ensureListening()
             render()
             if (prefs.isPaired) ConnectionService.reconnect(this)   // tell the dashboard right away
-            if (setupAfterPair) { setupAfterPair = false; askBackgroundAllowed() }   // next step of the post-pairing setup
         }
-
-    /** True while the "allow calling, then allow background" prompts that follow a successful pairing are running. */
-    private var setupAfterPair = false
 
     private val micPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) startVoiceMode() else render()
         }
 
-    // Refreshes "Today's calls" the moment the phone's call log changes (a call ends, a missed call arrives, ...).
-    private val callLogObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-        override fun onChange(selfChange: Boolean) { renderStats() }
-    }
+    private var recorder: MediaRecorder? = null
+    private var preview: MediaPlayer? = null
+
+    private val recPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) startRecording() else renderMyVoice()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,14 +82,19 @@ class MainActivity : AppCompatActivity() {
         b.tileCalling.setOnClickListener { askCallingPermissions() }
         b.tileUnpair.setOnClickListener { confirmUnpair() }
         b.tileVoice.setOnClickListener { toggleVoiceMode() }
-        b.btnActivity.setOnClickListener { showActivityLog() }
-        b.feedbackBanner.setOnClickListener { startActivity(Intent(this, FeedbackActivity::class.java)) }
+        b.btnRec.setOnClickListener { toggleRecording() }
+        b.btnPlay.setOnClickListener { togglePreview() }
+        b.btnDel.setOnClickListener { deleteMyVoice() }
+        b.btnOverlay.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
+        }
+        b.swAutoplay.isChecked = prefs.autoPlayMyVoice
+        b.swAutoplay.setOnCheckedChangeListener { _, on -> prefs.autoPlayMyVoice = on }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { ConnectionState.state.collect { render() } }
-                launch { ConnectionState.log.collect { lines -> renderLog(lines); renderStats() } }
-                launch { FeedbackPrompt.count.collect { renderFeedbackBanner(); autoShowFeedback() } }
+                launch { ConnectionState.log.collect { lines -> renderLog(lines) } }
             }
         }
 
@@ -102,55 +104,112 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        visible = true
         render()
-        renderFeedbackBanner()
-        autoShowFeedback()
-    }
-
-    override fun onPause() {
-        visible = false
-        super.onPause()
-    }
-
-    /** "N calls waiting for feedback" strip on the home screen (calls whose feedback screen was skipped). */
-    private fun renderFeedbackBanner() {
-        val n = FeedbackPrompt.count.value.coerceAtLeast(0)
-        b.feedbackBanner.visibility = if (n > 0) View.VISIBLE else View.GONE
-        b.feedbackBannerText.text = resources.getQuantityString(R.plurals.fb_banner, n, n)
-    }
-
-    /** Opens the one-tap feedback screen right after a call has ended (once per call, and never over a call in progress). */
-    private fun autoShowFeedback() {
-        if (!FeedbackPrompt.autoShow || FeedbackActivity.visible) return
-        if (FeedbackPrompt.waiting(this) == 0) { FeedbackPrompt.autoShow = false; return }
-        if (CallManager.get(this).isOnCall()) return
-        FeedbackPrompt.autoShow = false
-        startActivity(Intent(this, FeedbackActivity::class.java))
-    }
-
-    override fun onStart() {
-        super.onStart()
-        try {
-            contentResolver.registerContentObserver(CallLog.Calls.CONTENT_URI, true, callLogObserver)
-        } catch (e: Exception) { /* no permission yet: the counts refresh on resume instead */ }
     }
 
     override fun onStop() {
-        try { contentResolver.unregisterContentObserver(callLogObserver) } catch (e: Exception) { /* not registered */ }
+        stopPreview()
+        if (recorder != null) finishRecording()
         super.onStop()
     }
 
-    /* ── Today's calls ──────────────────────────────────────────────────────── */
+    /* ── My recorded voice ──────────────────────────────────────────────────── */
 
-    private fun renderStats() {
-        lifecycleScope.launch {
-            val t = withContext(Dispatchers.IO) { CallStats.today(applicationContext) }
-            b.statDialed.text = t?.dialed?.toString() ?: "–"
-            b.statReceived.text = t?.received?.toString() ?: "–"
-            b.statNotAnswered.text = t?.notAnswered?.toString() ?: "–"
-            b.statsHint.visibility = if (t == null) View.VISIBLE else View.GONE
+    private fun renderMyVoice(message: Int? = null) {
+        val rec = recorder != null
+        val has = MyVoice.exists(this)
+        b.btnOverlay.visibility = if (CallOverlay.canShow(this)) View.GONE else View.VISIBLE
+        b.btnRec.setText(if (rec) R.string.myvoice_stop else R.string.myvoice_record)
+        b.btnPlay.isEnabled = has && !rec
+        b.btnDel.isEnabled = has && !rec
+        b.myvoiceStatus.setText(message ?: when {
+            rec -> R.string.myvoice_recording
+            preview != null -> R.string.myvoice_playing
+            has -> R.string.myvoice_saved
+            else -> R.string.myvoice_none
+        })
+    }
+
+    private fun toggleRecording() {
+        if (recorder != null) { finishRecording(); return }
+        if (!DialerPermissions.has(this, Manifest.permission.RECORD_AUDIO)) {
+            recPermission.launch(Manifest.permission.RECORD_AUDIO)
+            return
         }
+        startRecording()
+    }
+
+    private fun startRecording() {
+        stopPreview()
+        val tmp = MyVoice.tempFile(this)
+        tmp.delete()
+        try {
+            val mr = newRecorder()
+            mr.setAudioSource(MediaRecorder.AudioSource.MIC)
+            mr.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            mr.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            mr.setAudioSamplingRate(44_100)
+            mr.setAudioEncodingBitRate(96_000)
+            mr.setMaxDuration(60_000)
+            mr.setOutputFile(tmp.absolutePath)
+            mr.setOnInfoListener { _, what, _ ->
+                if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) runOnUiThread { finishRecording() }
+            }
+            mr.prepare()
+            mr.start()
+            recorder = mr
+        } catch (e: Exception) {
+            recorder = null
+            tmp.delete()
+            renderMyVoice(R.string.myvoice_failed)
+            return
+        }
+        renderMyVoice()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun newRecorder(): MediaRecorder =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
+
+    private fun finishRecording() {
+        val mr = recorder ?: return
+        recorder = null
+        var ok = true
+        try { mr.stop() } catch (e: RuntimeException) { ok = false }      // stopped before any sound was captured
+        try { mr.release() } catch (e: Exception) { /* already released */ }
+        if (ok && MyVoice.commit(this)) renderMyVoice() else { MyVoice.tempFile(this).delete(); renderMyVoice(R.string.myvoice_failed) }
+    }
+
+    private fun togglePreview() {
+        if (preview != null) { stopPreview(); return }
+        if (!MyVoice.exists(this)) return
+        try {
+            val mp = MediaPlayer()
+            mp.setDataSource(MyVoice.file(this).absolutePath)
+            mp.setOnPreparedListener { it.start() }
+            mp.setOnCompletionListener { stopPreview() }
+            mp.setOnErrorListener { _, _, _ -> stopPreview(); true }
+            mp.prepareAsync()
+            preview = mp
+            b.btnPlay.setText(R.string.myvoice_stop)
+            renderMyVoice()
+        } catch (e: Exception) {
+            stopPreview()
+        }
+    }
+
+    private fun stopPreview() {
+        val mp = preview ?: return
+        preview = null
+        try { mp.release() } catch (e: Exception) { /* already released */ }
+        b.btnPlay.setText(R.string.myvoice_play)
+        renderMyVoice()
+    }
+
+    private fun deleteMyVoice() {
+        stopPreview()
+        MyVoice.delete(this)
+        renderMyVoice()
     }
 
     /* ── Pairing ────────────────────────────────────────────────────────────── */
@@ -184,7 +243,6 @@ class MainActivity : AppCompatActivity() {
                 ConnectionState.log("Paired with ${res.optString("institute_name")}")
                 b.inputCode.setText("")
                 ConnectionService.start(this@MainActivity)
-                startPostPairSetup()
             } catch (e: ApiException) {
                 showPairError(e.message ?: getString(R.string.err_network))
             } catch (e: IOException) {
@@ -193,27 +251,6 @@ class MainActivity : AppCompatActivity() {
                 setBusy(false)
                 render()
             }
-        }
-    }
-
-    /** After a successful pairing: ask to allow calling, then ask to allow running in the background. */
-    private fun startPostPairSetup() {
-        val todo = DialerPermissions.all().filter { !DialerPermissions.has(this, it) }
-        if (todo.isEmpty()) {
-            askBackgroundAllowed()
-        } else {
-            setupAfterPair = true
-            callingPermissions.launch(todo.toTypedArray())   // the result handler then asks for background
-        }
-    }
-
-    /** Shows Android's "allow this app to run in the background?" prompt (nothing happens if it is already allowed). */
-    private fun askBackgroundAllowed() {
-        if (isIgnoringBatteryOptimizations()) return
-        try {
-            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
-        } catch (e: Exception) {
-            try { startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } catch (_: Exception) { /* no such screen on this phone */ }
         }
     }
 
@@ -270,7 +307,7 @@ class MainActivity : AppCompatActivity() {
     /* ── Rendering ──────────────────────────────────────────────────────────── */
 
     private fun render() {
-        renderStats()
+        renderMyVoice()
         val paired = prefs.isPaired
         b.pairCard.visibility = if (paired) View.GONE else View.VISIBLE
         b.statusCard.visibility = if (paired) View.VISIBLE else View.GONE
@@ -309,28 +346,8 @@ class MainActivity : AppCompatActivity() {
         else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
-    private var logLines: List<String> = emptyList()
-    private var logDialogText: android.widget.TextView? = null
-
-    private fun logAsText(): String = if (logLines.isEmpty()) getString(R.string.log_empty) else logLines.joinToString("\n")
-
-    /** The activity log lives behind the small icon in the header; if its popup is open it updates live. */
     private fun renderLog(lines: List<String>) {
-        logLines = lines
-        logDialogText?.text = logAsText()
-    }
-
-    private fun showActivityLog() {
-        val view = layoutInflater.inflate(R.layout.dialog_activity, null)
-        val tv = view.findViewById<android.widget.TextView>(R.id.dialog_log_text)
-        tv.text = logAsText()
-        logDialogText = tv
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.activity_title)
-            .setView(view)
-            .setPositiveButton(android.R.string.ok, null)
-            .setOnDismissListener { logDialogText = null }
-            .show()
+        b.logText.text = if (lines.isEmpty()) getString(R.string.log_empty) else lines.joinToString("\n")
     }
 
     /* ── Permissions / battery ──────────────────────────────────────────────── */
@@ -388,10 +405,5 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
         }
-    }
-
-    companion object {
-        /** True while the home screen is on top (no notification is needed for a finished call then). */
-        @Volatile var visible = false
     }
 }

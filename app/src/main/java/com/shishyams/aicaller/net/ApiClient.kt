@@ -70,9 +70,6 @@ class ApiClient(private val baseUrl: String, private val token: String?) {
     fun inboundStart(number: String): JSONObject =
         call("inbound_start", JSONObject().put("number", number), true, 45)
 
-    /** Generic authenticated call to any server action (used by the campaign screens). Blocking: run off the main thread. */
-    fun request(action: String, body: JSONObject = JSONObject()): JSONObject = call(action, body, true)
-
     fun unpair() {
         call("unpair", JSONObject(), true)
     }
@@ -81,7 +78,7 @@ class ApiClient(private val baseUrl: String, private val token: String?) {
      * Step 7 — sends one thing the person said during a call. The body is the raw WAV (empty for kind = "silence"),
      * the details travel in the query string. Returns {action, heard, reply, audio_b64, ...}.
      */
-    fun rtTurn(callId: Long, callToken: String, seq: Int, kind: String, durMs: Int, peak: Int, wav: ByteArray, barge: Boolean = false, cutMs: Int = 0): JSONObject {
+    fun rtTurn(callId: Long, callToken: String, seq: Int, kind: String, durMs: Int, peak: Int, wav: ByteArray, intro: Boolean = false, barge: Boolean = false, cutMs: Int = 0): JSONObject {
         val root = baseUrl.trim().trimEnd('/').toHttpUrlOrNull()
             ?: throw ApiException("bad_url", "The server address is not valid.", 0)
         if (!root.isHttps) throw ApiException("https_required", "Only secure https:// server addresses are allowed.", 0)
@@ -94,6 +91,7 @@ class ApiClient(private val baseUrl: String, private val token: String?) {
             .addQueryParameter("kind", kind)
             .addQueryParameter("dur", durMs.toString())
             .addQueryParameter("peak", peak.toString())
+            .apply { if (intro) addQueryParameter("intro", "1") }     // the app already played the owner's own recorded voice
             .apply { if (barge) { addQueryParameter("barge", "1"); addQueryParameter("cut", cutMs.toString()) } }   // this sentence interrupted the AI
             .build()
         val request = Request.Builder()

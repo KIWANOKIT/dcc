@@ -47,6 +47,8 @@ class VoiceBridge(
     cfg: JSONObject,
     private val greetingB64: String? = null,     // incoming call: the greeting (the admin's own recording) to play first
     private val inbound: Boolean = false,        // incoming call: the AI speaks first, so there is no "waiting for hello"
+    private val myVoice: File? = null,           // outgoing call: the owner's own recording, played as soon as the person says hello
+    private val playOnly: Boolean = false,       // outgoing call without the AI: play myVoice once, then end the call
     private val hangUp: () -> Unit
 ) {
     private val prefs = Prefs.get(ctx)
@@ -83,6 +85,9 @@ class VoiceBridge(
     private var seq = 0
     @Volatile private var talking = false          // the server has answered at least once
     private var preTalkUploads = 0
+    @Volatile private var introPlayed = false      // myVoice has been played on this call
+    @Volatile private var voicePlaying = false     // myVoice is playing right now (the microphone is ignored meanwhile)
+    @Volatile private var holdUntil = 0L           // ignore the microphone until then (echo of the recording)
     private var failures = 0
     @Volatile private var carryFrames: List<ShortArray>? = null    // what the person said while cutting the AI off: the start of their next sentence
     private var bargeNext = false                                  // the sentence being recorded began as an interruption
@@ -106,6 +111,13 @@ class VoiceBridge(
     private fun runLoop() {
         val rec = openRecorder()
         if (rec == null) {
+            if (myVoice != null) {      // no automatic listening, but the on-call Play button still works
+                ConnectionState.log("Call #$callId: microphone not available — use the Play my voice button")
+                routeToSpeaker()
+                waitForButton()
+                restoreAudio()
+                return
+            }
             ConnectionState.log("Call #$callId: microphone not available — ending the call")
             hangUp()
             return
@@ -128,7 +140,7 @@ class VoiceBridge(
         } catch (e: Exception) {
             ConnectionState.log("Voice error: ${e.javaClass.simpleName}")
             if (!stopped) {
-                hangUp()
+                if (myVoice != null) waitForButton() else hangUp()
             }
         } finally {
             try { rec.stop() } catch (e: Exception) { /* already stopped */ }
@@ -136,6 +148,35 @@ class VoiceBridge(
             record = null
             restoreAudio()
         }
+    }
+
+    /** Keeps the call (and the on-call Play button) alive when automatic listening is not possible. */
+    private fun waitForButton() {
+        try {
+            while (!stopped) Thread.sleep(300)
+        } catch (e: InterruptedException) {
+            // stop() was called
+        }
+    }
+
+    /** Plays the owner's own recording into the call now (the on-call "Play my voice" button). `done` runs when it has finished. */
+    fun playMyVoiceNow(done: () -> Unit) {
+        val f = myVoice
+        if (f == null || !f.isFile || voicePlaying || stopped) { done(); return }
+        voicePlaying = true
+        Thread({
+            try {
+                introPlayed = true
+                ConnectionState.log("Call #$callId: playing your recorded voice (button)")
+                routeToSpeaker()
+                playFile(f)
+            } finally {
+                talking = true
+                holdUntil = SystemClock.elapsedRealtime() + ECHO_TAIL_MS
+                voicePlaying = false
+                done()
+            }
+        }, "aic-myvoice").also { it.isDaemon = true; it.start() }
     }
 
     private fun openRecorder(): AudioRecord? {
@@ -179,6 +220,11 @@ class VoiceBridge(
             val n = rec.read(frame, 0, FRAME)
             if (n <= 0) {
                 if (n == AudioRecord.ERROR_DEAD_OBJECT || n == AudioRecord.ERROR_INVALID_OPERATION) throw IllegalStateException("read $n")
+                continue
+            }
+            if (voicePlaying || SystemClock.elapsedRealtime() < holdUntil) {      // our own recording (or its echo): never treat it as speech
+                inSpeech = false; utter.clear(); preRoll.clear(); loudRun = 0; loudFrames = 0; quietFrames = 0
+                lastActivity = SystemClock.elapsedRealtime()
                 continue
             }
             if (++sinceRoute >= 75) { sinceRoute = 0; routeToSpeaker() }       // Android resets the route when the call connects
@@ -236,6 +282,21 @@ class VoiceBridge(
         // Before the conversation has started only a short "hello" matters — never upload music or announcements.
         if (!talking) {
             if (lenMs > FIRST_HELLO_MAX_MS) return true
+            if (myVoice != null && !introPlayed && myVoice.isFile) {
+                // The person answered ("hello"): play the owner's own recorded voice right away, without asking the server.
+                introPlayed = true
+                ConnectionState.log("Call #$callId: playing your recorded voice")
+                voicePlaying = true
+                try { playFile(myVoice) } finally { voicePlaying = false }
+                if (playOnly) {
+                    try { Thread.sleep(PLAY_ONLY_END_DELAY_MS) } catch (e: InterruptedException) { throw e }
+                    hangUp()
+                    return false
+                }
+                talking = true
+                drain(rec)
+                return true
+            }
             if (preTalkUploads >= MAX_PRE_TALK_UPLOADS) return true
             preTalkUploads++
         }
@@ -267,7 +328,7 @@ class VoiceBridge(
         if (!prefs.isPaired) return null
         seq++
         return try {
-            val r = ApiClient(prefs.serverUrl, prefs.deviceToken).rtTurn(callId, callToken, seq, kind, durMs, micPeak, wav, barged, if (barged) lastCutMs else 0)
+            val r = ApiClient(prefs.serverUrl, prefs.deviceToken).rtTurn(callId, callToken, seq, kind, durMs, micPeak, wav, introPlayed, barged, if (barged) lastCutMs else 0)
             failures = 0
             r
         } catch (e: ApiException) {
@@ -451,5 +512,6 @@ class VoiceBridge(
         private const val FIRST_HELLO_MAX_MS = 5_500
         private const val MAX_PRE_TALK_UPLOADS = 12
         private const val INBOUND_GREETING_DELAY_MS = 700L
+        private const val PLAY_ONLY_END_DELAY_MS = 800L
     }
 }

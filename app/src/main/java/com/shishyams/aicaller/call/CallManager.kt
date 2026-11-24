@@ -18,6 +18,7 @@ import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.shishyams.aicaller.data.MyVoice
 import com.shishyams.aicaller.data.Prefs
 import com.shishyams.aicaller.net.ApiClient
 import com.shishyams.aicaller.net.ApiException
@@ -260,8 +261,9 @@ class CallManager private constructor(appContext: Context) {
             return CommandHandler.Result(false, null, "phone_busy")   // the phone's owner is on a call
         }
 
-        if (rt != null) {
-            // The AI is meant to talk: never place a call that would stay silent.
+        val mine = MyVoice.playable(ctx)       // the owner's own recording made in this app (played when the person answers)
+        if (rt != null || mine != null) {
+            // The AI (or the recording) is meant to talk: never place a call that would stay silent.
             if (!DialerPermissions.has(ctx, Manifest.permission.RECORD_AUDIO)) {
                 return CommandHandler.Result(false, null, "permission_missing:Microphone")
             }
@@ -290,10 +292,13 @@ class CallManager private constructor(appContext: Context) {
             return CommandHandler.Result(false, null, "dial_failed:" + (e.javaClass.simpleName))
         }
         ConnectionState.log("Calling (#$callId)")
-        if (rt != null) {
-            val bridge = VoiceBridge(ctx, callId, token, rt) { hangUp() }
+        if (rt != null || mine != null) {
+            val bridge = VoiceBridge(ctx, callId, token, rt ?: JSONObject(), myVoice = mine, playOnly = rt == null) { hangUp() }
             a.bridge = bridge
             bridge.start()
+            if (mine != null) {      // a small "Play my voice" button on top of the call screen
+                main.post { CallOverlay.show(ctx) { done -> active?.bridge?.playMyVoiceNow(done) ?: done() } }
+            }
         }
 
         // Watchdog 1: the call never started dialling (airplane mode, no signal, number refused).
@@ -367,6 +372,7 @@ class CallManager private constructor(appContext: Context) {
         if (active === a) active = null
         val bridge = a.bridge
         bridge?.stop()
+        main.post { CallOverlay.hide() }
 
         // The call-log lookup waits a few seconds for Android to write the entry — keep it off the main thread.
         worker.execute {
@@ -400,8 +406,6 @@ class CallManager private constructor(appContext: Context) {
                     .put("reason", reason)
                     .also { if (bridge != null) it.put("mic_peak", bridge.micPeak) }
             )
-            // An answered call: ask the caller how it went (Interested / Not Interested / Call Later / DND).
-            if (outcome == "answered") FeedbackPrompt.add(ctx, a.callId, a.token, a.number)
         }
     }
 
@@ -461,14 +465,6 @@ class CallManager private constructor(appContext: Context) {
             for (i in 1 until all.length()) rest.put(all.get(i))
             prefs.pendingEvents = rest.toString()
         }
-    }
-
-    /** True while this app has a call of its own going (the feedback screen waits until it is over). */
-    fun isOnCall(): Boolean = active != null
-
-    /** The caller's one-tap feedback for an answered call: interested | not_interested | callback | dnc. Sent like a call result (retried until accepted). */
-    fun submitFeedback(callId: Long, token: String, feedback: String) {
-        enqueueEvent(JSONObject().put("call_id", callId).put("token", token).put("event", "feedback").put("feedback", feedback))
     }
 
     fun hasPending(): Boolean = synchronized(pendingLock) { readPending().length() > 0 }

@@ -48,16 +48,6 @@
                     android:textColor="@color/slate"
                     android:textSize="11sp" />
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/btn_activity"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/activity_title"
-                android:padding="8dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_activity" />
         </LinearLayout>
 
         <!-- PAIR -->
@@ -271,7 +261,7 @@
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                <com.shishyams.aicaller.SquareCardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/tile_reconnect"
                     style="@style/Widget.AICaller.Tile"
                     android:layout_width="0dp"
@@ -282,36 +272,37 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="10dp">
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="40dp"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:background="@drawable/bg_icon_tile"
                             android:backgroundTint="#DCE9FF"
                             android:contentDescription="@null"
-                            android:padding="10dp"
+                            android:padding="5dp"
                             android:src="@drawable/ic_refresh"
                             android:tint="#3B6FD8" />
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:gravity="center"
-                            android:maxLines="3"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:maxLines="2"
                             android:text="@string/btn_reconnect"
                             android:textColor="@color/ink"
-                            android:textSize="13sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
-                </com.shishyams.aicaller.SquareCardView>
+                </com.google.android.material.card.MaterialCardView>
                 <Space android:layout_width="8dp" android:layout_height="match_parent" />
 
-                <com.shishyams.aicaller.SquareCardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/tile_battery"
                     style="@style/Widget.AICaller.Tile"
                     android:layout_width="0dp"
@@ -322,44 +313,45 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="10dp">
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="40dp"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:background="@drawable/bg_icon_tile"
                             android:backgroundTint="#FFF1CC"
                             android:contentDescription="@null"
-                            android:padding="10dp"
+                            android:padding="5dp"
                             android:src="@drawable/ic_bolt"
                             android:tint="#D98A00" />
 
                         <TextView
-                            android:id="@+id/lbl_battery"
-                            android:layout_width="match_parent"
+                    android:id="@+id/lbl_battery"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:gravity="center"
-                            android:maxLines="3"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:maxLines="2"
                             android:text="@string/btn_battery_allow"
                             android:textColor="@color/ink"
-                            android:textSize="13sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
-                </com.shishyams.aicaller.SquareCardView>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                <com.shishyams.aicaller.SquareCardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/tile_calling"
                     style="@style/Widget.AICaller.Tile"
                     android:layout_width="0dp"
@@ -370,37 +362,38 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="10dp">
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="40dp"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:background="@drawable/bg_icon_tile"
                             android:backgroundTint="#D8F5E8"
                             android:contentDescription="@null"
-                            android:padding="10dp"
+                            android:padding="5dp"
                             android:src="@drawable/ic_call"
                             android:tint="#12936A" />
 
                         <TextView
-                            android:id="@+id/lbl_calling"
-                            android:layout_width="match_parent"
+                    android:id="@+id/lbl_calling"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:gravity="center"
-                            android:maxLines="3"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:maxLines="2"
                             android:text="@string/btn_calling_allow"
                             android:textColor="@color/ink"
-                            android:textSize="13sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
-                </com.shishyams.aicaller.SquareCardView>
+                </com.google.android.material.card.MaterialCardView>
                 <Space android:layout_width="8dp" android:layout_height="match_parent" />
 
-                <com.shishyams.aicaller.SquareCardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/tile_unpair"
                     style="@style/Widget.AICaller.Tile"
                     android:layout_width="0dp"
@@ -411,33 +404,34 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="10dp">
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="40dp"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:background="@drawable/bg_icon_tile"
                             android:backgroundTint="#FDE2E2"
                             android:contentDescription="@null"
-                            android:padding="10dp"
+                            android:padding="5dp"
                             android:src="@drawable/ic_logout"
                             android:tint="#DC2626" />
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:gravity="center"
-                            android:maxLines="3"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:maxLines="2"
                             android:text="@string/btn_unpair"
                             android:textColor="@color/ink"
-                            android:textSize="13sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
-                </com.shishyams.aicaller.SquareCardView>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
                 <com.google.android.material.card.MaterialCardView
@@ -492,29 +486,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- CALLS WAITING FOR FEEDBACK -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/feedback_banner"
-                    style="@style/Widget.AICaller.Tile"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:visibility="gone"
-                    app:cardBackgroundColor="#FFF4E5">
-
-                    <TextView
-                        android:id="@+id/feedback_banner_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="10dp"
-                        android:textColor="@color/ink"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- TODAY'S CALLS -->
+                <!-- MY OWN VOICE -->
                 <com.google.android.material.card.MaterialCardView
                     style="@style/Widget.AICaller.Tile"
                     android:layout_width="match_parent"
@@ -530,10 +502,18 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/stats_title"
+                            android:text="@string/myvoice_title"
                             android:textColor="@color/ink"
                             android:textSize="12sp"
                             android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/myvoice_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/slate"
+                            android:textSize="11sp" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -541,92 +521,91 @@
                             android:layout_marginTop="4dp"
                             android:orientation="horizontal">
 
-                            <LinearLayout
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_rec"
+                                style="@style/Widget.Material3.Button.TonalButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="36dp"
                                 android:layout_weight="1"
-                                android:gravity="center_horizontal"
-                                android:orientation="vertical">
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingStart="4dp"
+                                android:paddingEnd="4dp"
+                                android:text="@string/myvoice_record"
+                                android:textSize="11sp" />
 
-                                <TextView
-                                    android:id="@+id/stat_dialed"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="–"
-                                    android:textColor="@color/accent_blue"
-                                    android:textSize="22sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/stats_dialed"
-                                    android:textColor="@color/slate"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_play"
+                                style="@style/Widget.Material3.Button.TonalButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="36dp"
+                                android:layout_marginStart="4dp"
                                 android:layout_weight="1"
-                                android:gravity="center_horizontal"
-                                android:orientation="vertical">
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingStart="4dp"
+                                android:paddingEnd="4dp"
+                                android:text="@string/myvoice_play"
+                                android:textSize="11sp" />
 
-                                <TextView
-                                    android:id="@+id/stat_received"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="–"
-                                    android:textColor="@color/state_green"
-                                    android:textSize="22sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/stats_received"
-                                    android:textColor="@color/slate"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_del"
+                                style="@style/Widget.Material3.Button.TonalButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="36dp"
+                                android:layout_marginStart="4dp"
                                 android:layout_weight="1"
-                                android:gravity="center_horizontal"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/stat_not_answered"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="–"
-                                    android:textColor="@color/state_red"
-                                    android:textSize="22sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/stats_not_answered"
-                                    android:textColor="@color/slate"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingStart="4dp"
+                                android:paddingEnd="4dp"
+                                android:text="@string/myvoice_delete"
+                                android:textSize="11sp" />
                         </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/stats_hint"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_overlay"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="36dp"
+                            android:layout_marginTop="4dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:text="@string/myvoice_allow_popup"
+                            android:textSize="11sp"
+                            android:visibility="gone" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/sw_autoplay"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="@string/stats_hint"
-                            android:textColor="@color/slate"
-                            android:textSize="10sp"
-                            android:visibility="gone" />
+                            android:text="@string/myvoice_auto"
+                            android:textColor="@color/ink"
+                            android:textSize="11sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/activity_title"
+            android:textColor="@color/ink"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/log_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="monospace"
+            android:textColor="@color/slate"
+            android:textIsSelectable="true"
+            android:textSize="10sp" />
 
         <View
             android:layout_width="match_parent"
