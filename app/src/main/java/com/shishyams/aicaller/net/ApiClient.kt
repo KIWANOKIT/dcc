@@ -70,6 +70,12 @@ class ApiClient(private val baseUrl: String, private val token: String?) {
     fun inboundStart(number: String): JSONObject =
         call("inbound_start", JSONObject().put("number", number), true, 45)
 
+    /** Generic authenticated call used by the campaign screens: {action}(body) -> JSON reply. */
+    fun request(action: String, body: JSONObject = JSONObject()): JSONObject = call(action, body, true)
+
+    /** The numbers the admin assigned to this phone on the dashboard: {numbers:[{id,name,phone}], count}. */
+    fun myNumbers(): JSONObject = call("my_numbers", JSONObject(), true)
+
     fun unpair() {
         call("unpair", JSONObject(), true)
     }
