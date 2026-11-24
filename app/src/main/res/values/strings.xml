@@ -67,9 +67,6 @@
     <string name="myvoice_play">Play</string>
     <string name="myvoice_delete">Delete</string>
     <string name="myvoice_auto">Use it on calls: play automatically and show a Play button</string>
-    <string name="overlay_on_call">On call</string>
-    <string name="overlay_play">▶  Play my voice</string>
-    <string name="overlay_playing">Playing…</string>
     <string name="myvoice_allow_popup">Allow the Play button during calls (display over other apps)</string>
 
     <!-- Campaigns screen (referenced by activity_campaigns.xml, activity_campaign_edit.xml, CampaignsActivity, CampaignEditActivity) -->
@@ -103,5 +100,13 @@
     <string name="camp_hint_callback">If the person asks for a call back</string>
     <string name="camp_hint_closing">Closing line</string>
     <string name="camp_hint_rules">Extra rules for the AI</string>
+    <string name="numbers_title">My numbers</string>
+    <string name="numbers_empty">No numbers have been assigned to this phone yet. Your admin adds them on the dashboard under Android Devices → Numbers.</string>
+    <string name="numbers_refresh">Refresh</string>
+    <string name="btn_my_numbers">My numbers</string>
+    <plurals name="numbers_count">
+        <item quantity="one">%d number assigned to this phone</item>
+        <item quantity="other">%d numbers assigned to this phone</item>
+    </plurals>
     <string name="status_offline_hint">Could not reach the server. Check the internet connection and try again.</string>
 </resources>
