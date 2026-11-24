@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="numbers_title">My numbers</string>
+    <string name="numbers_empty">No numbers have been assigned to this phone yet. Your admin adds them on the dashboard under Android Devices → Numbers.</string>
+    <string name="numbers_refresh">Refresh</string>
+    <string name="btn_my_numbers">My numbers</string>
+    <plurals name="numbers_count">
+        <item quantity="one">%d number assigned to this phone</item>
+        <item quantity="other">%d numbers assigned to this phone</item>
+    </plurals>
+</resources>
